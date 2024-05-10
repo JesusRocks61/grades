@@ -1,0 +1,361 @@
+from tkinter import *
+import csv
+
+class GUI:
+    def __init__(self, window):
+        ''' This function sets up the window with all of the buttons, labels, inputs, etc. '''
+
+        # Sets up the window as window
+        self.window = window
+
+        # This code is for student's name, such as the label and input, this is meant for the user to input the name of 
+        # the student, so the intended value would be a string
+        self.student_name_frame = Frame(self.window)
+        self.student_name_label = Label(self.student_name_frame, text='Student Name:\t')
+        self.student_name_input = Entry(self.student_name_frame)
+        self.student_name_label.pack(side='left')
+        self.student_name_input.pack(padx=5, side='left')
+        self.student_name_frame.pack(anchor='w', padx=10, pady=10)
+
+        # This code is for the amount of attempts a student has made for a test, 
+        # this includes things such as the label and input and only accepts integers 1-4
+        self.attempts_frame = Frame(self.window)
+        self.attempts_label = Label(self.attempts_frame, text='No. of Attempts:\t')
+        self.attempts_input = Entry(self.attempts_frame)
+        self.attempts_label.pack(side='left')
+        self.attempts_input.pack(padx=5, side='left')
+        self.attempts_frame.pack(anchor='w', padx=10, pady=10)
+
+        # This is the code for the 1st score and will only show up after you have successfully entered in valid inputs 
+        # for both the student's name and no. of attempts along with pushing the submit button 
+        self.score_one_frame = Frame(self.window)
+        self.score_one_label = Label(self.score_one_frame, text='Score 1:\t\t')
+        self.score_one_input = Entry(self.score_one_frame)
+        self.score_one_label.pack(side='left')
+        self.score_one_input.pack(padx=5, side='left')
+        self.score_one_frame.pack(anchor='w', padx=10, pady=10)
+        self.score_one_frame.pack_forget()
+
+        # This is the code for the 2nd score and will only show up after you have successfully entered in valid inputs 
+        # for both the student's name and no. of attempts along with pushing the submit button, additionally, no. of 
+        # attempts must be at least 2 for this to show up
+        self.score_two_frame = Frame(self.window)
+        self.score_two_label = Label(self.score_two_frame, text='Score 2:\t\t')
+        self.score_two_input = Entry(self.score_two_frame)
+        self.score_two_label.pack(side='left')
+        self.score_two_input.pack(padx=5, side='left')
+        self.score_two_frame.pack(anchor='w', padx=10, pady=10)
+        self.score_two_frame.pack_forget()
+
+        # This is the code for the 3rd score and will only show up after you have successfully entered in valid inputs 
+        # for both the student's name and no. of attempts along with pushing the submit button, additionally, no. of 
+        # attempts must be at least 3 for this to show up 
+        self.score_three_frame = Frame(self.window)
+        self.score_three_label = Label(self.score_three_frame, text='Score 3:\t\t')
+        self.score_three_input = Entry(self.score_three_frame)
+        self.score_three_label.pack(side='left')
+        self.score_three_input.pack(padx=5, side='left')
+        self.score_three_frame.pack(anchor='w', padx=10, pady=10)
+        self.score_three_frame.pack_forget()
+
+        # This is the code for the 4th score and will only show up after you have successfully entered in valid inputs 
+        # for both the student's name and no. of attempts along with pushing the submit button, additionally, no. of 
+        # attempts must be at least 4, the max for this to show up
+        self.score_four_frame = Frame(self.window)
+        self.score_four_label = Label(self.score_four_frame, text='Score 4:\t\t')
+        self.score_four_input = Entry(self.score_four_frame)
+        self.score_four_label.pack(side='left')
+        self.score_four_input.pack(padx=5, side='left')
+        self.score_four_frame.pack(anchor='w', padx=10, pady=10)
+        self.score_four_frame.pack_forget()
+
+        # This is the code for the submit button, which leads over to the submit function when pressed, this button 
+        # only shows up whenever the user is inputing the student name and no. of attempts, will show back up 
+        # after reset button is pressed or the user successfully adds an entry to the csv file
+        self.frame_submit = Frame(self.window)
+        self.button_submit = Button(self.frame_submit, text='SUBMIT', command=self.submit)
+        self.button_submit.pack(side='left')
+        self.frame_submit.pack()
+
+        # This is the code for the reset button, which leads over to the reset function when pressed, this button 
+        # always is present and will reset the window to how it was originally
+        self.frame_reset = Frame(self.window)
+        self.button_reset = Button(self.frame_reset, text='RESET', command=self.reset)
+        self.button_reset.pack(side='left')
+        self.frame_reset.pack()
+
+        # This is the code for the submit scores button, which leads over to the submit_scores function when pressed, 
+        # this is a separate button from submit so that the code doesn't need the button to switch commands like every 
+        # two seconds and only shows up when entering scores
+        self.frame_submit_scores = Frame(self.window)
+        self.button_submit_scores = Button(self.frame_submit_scores, text='SUBMIT', command=self.submit_scores)
+        self.button_submit_scores.pack(side='left')
+        self.frame_submit_scores.pack()
+        self.frame_submit_scores.pack_forget()
+
+        # This is the code for the text at the bottom of the window which will tell the user if they entered in a valid 
+        # value or an invalid value
+        self.frame_wrong = Frame(self.window)
+        self.label_wrong = Label(self.frame_wrong, text='Please fill out all values')
+        self.label_wrong.pack(side='left')
+        self.frame_wrong.pack()
+
+    def submit(self):
+        ''' This code essentially is checking for if the value of name and attempts is correct '''
+        
+        # Try statement in the case of an error within the code, which will almost always be due to the
+        # user's invalid input for either name or attempt
+        try:
+            # Variables for the student's name and no. of attempts
+            name = self.student_name_input.get().rstrip()
+            attempts = int(self.attempts_input.get())
+            
+            # Checks if the name input has no value and forces the user to input a value to continue
+            if name == '':
+                self.label_wrong.config(fg='red')
+                self.score_one_frame.pack_forget()
+                self.score_two_frame.pack_forget()
+                self.score_three_frame.pack_forget()
+                self.score_four_frame.pack_forget()
+                self.frame_reset.pack_forget()
+                self.frame_wrong.pack_forget()
+                self.frame_submit.pack()
+                self.frame_reset.pack()
+                self.frame_wrong.pack()
+                self.frame_submit_scores.pack_forget()
+                
+            # Checks to see if the no. of attempts is within 1-4 and forces the user to input a value
+            # within that range to continue
+            elif attempts <= 0 or attempts > 4:
+                self.label_wrong.config(fg='red', text='There can be 1-4 No. of Attempts')
+                self.score_one_frame.pack_forget()
+                self.score_two_frame.pack_forget()
+                self.score_three_frame.pack_forget()
+                self.score_four_frame.pack_forget()
+                self.frame_reset.pack_forget()
+                self.frame_wrong.pack_forget()
+                self.frame_submit.pack()
+                self.frame_reset.pack()
+                self.frame_wrong.pack()
+                self.frame_submit_scores.pack_forget()
+                
+            # If the user has correctly entered in everything, then they will get to see the inputs for how many they 
+            # entered in and the submit button will be replaced with the submit scores button, along with both the 
+            # student's name and no. of inputs being disabled unless the user hits the reset button
+            else:
+                # message for the label that tells the user they entered in valid values
+                self.label_wrong.config(fg='green', text='Please enter the scores for the attempts')
+                
+                # code for if only 1 attempt was attempted, will only show attempt 1
+                if attempts == 1:
+                    self.score_one_frame.pack()
+                    self.score_two_frame.pack_forget()
+                    self.score_three_frame.pack_forget()
+                    self.score_four_frame.pack_forget()
+                    self.frame_submit.pack_forget()
+                    self.frame_wrong.pack_forget()
+                    self.frame_reset.pack_forget()
+                    self.frame_submit_scores.pack()
+                    self.frame_reset.pack()
+                    self.frame_wrong.pack()
+                    self.student_name_input.config(state='disabled')
+                    self.attempts_input.config(state='disabled')
+
+                # code for if only 2 attempts was attempted, will only show attempt 1 and 2
+                elif attempts == 2:
+                    self.score_one_frame.pack()
+                    self.score_two_frame.pack()
+                    self.score_three_frame.pack_forget()
+                    self.score_four_frame.pack_forget()
+                    self.frame_submit.pack_forget()
+                    self.frame_wrong.pack_forget()
+                    self.frame_reset.pack_forget()
+                    self.frame_submit_scores.pack()
+                    self.frame_reset.pack()
+                    self.frame_wrong.pack()
+                    self.student_name_input.config(state='disabled')
+                    self.attempts_input.config(state='disabled')
+
+                # code for if only 3 attempts was attempted, will only show attempt 1, 2, and 3
+                elif attempts == 3:
+                    self.score_one_frame.pack()
+                    self.score_two_frame.pack()
+                    self.score_three_frame.pack()
+                    self.score_four_frame.pack_forget()
+                    self.frame_submit.pack_forget()
+                    self.frame_wrong.pack_forget()
+                    self.frame_reset.pack_forget()
+                    self.frame_submit_scores.pack()
+                    self.frame_reset.pack()
+                    self.frame_wrong.pack()
+                    self.student_name_input.config(state='disabled')
+                    self.attempts_input.config(state='disabled')
+
+                # code for if only 4 attempts was attempted, will only show attempt 1, 2, 3, and 4
+                elif attempts == 4:
+                    self.score_one_frame.pack()
+                    self.score_two_frame.pack()
+                    self.score_three_frame.pack()
+                    self.score_four_frame.pack()
+                    self.frame_submit.pack_forget()
+                    self.frame_wrong.pack_forget()
+                    self.frame_reset.pack_forget()
+                    self.frame_submit_scores.pack()
+                    self.frame_reset.pack()
+                    self.frame_wrong.pack()
+                    self.student_name_input.config(state='disabled')
+                    self.attempts_input.config(state='disabled')
+        
+        # if the user's input for name or no. of attempts was not valid and they caused an error, they will be presented 
+        # with this error message until they enter a valid input
+        except:
+            self.label_wrong.config(fg='red', text='Please enter valid values')
+            self.score_one_frame.pack_forget()
+            self.score_two_frame.pack_forget()
+            self.score_three_frame.pack_forget()
+            self.score_four_frame.pack_forget()
+            self.frame_reset.pack_forget()
+            self.frame_wrong.pack_forget()
+            self.frame_submit.pack()
+            self.frame_reset.pack()
+            self.frame_wrong.pack()
+            self.frame_submit_scores.pack_forget()
+
+    def reset(self):
+        ''' This code resets the window back to how it was originally when you first opened up the program '''
+        
+        # resetting all score inputs
+        self.score_one_frame.pack()
+        self.score_two_frame.pack()
+        self.score_three_frame.pack()
+        self.score_four_frame.pack()
+        self.score_one_input.delete(0, END)
+        self.score_two_input.delete(0, END)
+        self.score_three_input.delete(0, END)
+        self.score_four_input.delete(0, END)
+        self.score_one_frame.pack_forget()
+        self.score_two_frame.pack_forget()
+        self.score_three_frame.pack_forget()
+        self.score_four_frame.pack_forget()
+        
+        # resetting all button, label, and input inputs
+        self.frame_reset.pack_forget()
+        self.frame_submit.pack_forget()
+        self.frame_submit_scores.pack_forget()
+        self.label_wrong.config(fg='black', text='Please fill out all values')
+        self.frame_wrong.pack_forget()
+        self.frame_submit.pack()
+        self.frame_reset.pack()
+        self.frame_wrong.pack()
+        self.student_name_input.config(state='normal')
+        self.attempts_input.config(state='normal')
+        self.student_name_input.delete(0, END)
+        self.attempts_input.delete(0, END)
+
+    def submit_scores(self):
+        ''' This function will send all of the user's inputs to the grades.csv file '''
+        
+        # Setting up the file and other variables
+        grades_file = 'files/grades.csv'
+        is_grade_not_formatted = False
+        name = self.student_name_input.get().rstrip()
+        attempts = int(self.attempts_input.get())
+
+        # Reads the file to see if it needs to have headers as in name, score 1, etc.
+        with open(grades_file, 'r') as csvfile:
+            size_of_grade = [row for row in csv.DictReader(csvfile)]
+            if len(size_of_grade) <= 0:
+                is_grade_not_formatted = True
+
+        # Opens the csv file to add things to it
+        with open(grades_file, 'a', newline='') as csv_file:
+            content = csv.writer(csv_file)
+
+            # Adds the headers if the file does not already have them
+            if is_grade_not_formatted:
+                content.writerow(['Name', 'Score 1', 'Score 2', 'Score 3', 'Score 4', 'Final'])
+            
+            # try statement for if the user inputs an invalid score
+            try:
+                
+                # if no. of attempts is 1, then this will send the csv file the name, score 1, and final score as score 1
+                if attempts == 1:
+                    score1 = int(self.score_one_input.get())
+                    if 0 <= score1 <= 100:
+                        content.writerow([name, score1, '', '', '', score1])
+                    else:
+                        raise EXCEPTION
+
+                # if no. of attempts is 2, then this will send the csv file the name, score 1, score 2, and final score 
+                # as the score 1 or score 2, aka whichever one is higher
+                if attempts == 2:
+                    score1 = int(self.score_one_input.get())
+                    score2 = int(self.score_two_input.get())
+                    if 0 <= score1 <= 100:
+                        if 0 <= score2 <= 100:
+                            
+                            if score1 > score2:
+                                final_score = score1
+                            else:
+                                final_score = score2
+                            content.writerow([name, score1, score2, '', '', final_score])
+                    else:
+                        raise EXCEPTION
+                    
+                # if no. of attempts is 2, then this will send the csv file the name, score 1, score 2, score 3, and 
+                # final score as the score 1, score 2 or score 3, aka whichever one is higher
+                if attempts == 3:
+                    score1 = int(self.score_one_input.get())
+                    score2 = int(self.score_two_input.get())
+                    score3 = int(self.score_three_input.get())
+                    if 0 <= score1 <= 100:
+                        if 0 <= score2 <= 100:
+                            if 0 <= score3 <= 100:
+                                
+                                if score1 > score2:
+                                    if score1 > score3:
+                                        final_score = score1
+                                elif score2 > score3:
+                                    final_score = score2
+                                else:
+                                    final_score = score3
+                                content.writerow([name, score1, score2, score3, '', final_score])
+                    else:
+                        raise EXCEPTION
+
+                # if no. of attempts is 2, then this will send the csv file the name, score 1, score 2, score 3, score 4 
+                # and final score as the score 1, score 2, score 3, or score 4, aka whichever one is higher
+                if attempts == 4:
+                    score1 = int(self.score_one_input.get())
+                    score2 = int(self.score_two_input.get())
+                    score3 = int(self.score_three_input.get())
+                    score4 = int(self.score_four_input.get())
+
+                    if 0 <= score1 <= 100:
+                        if 0 <= score2 <= 100:
+                            if 0 <= score3 <= 100:
+                                if 0 <= score4 <= 100:
+
+                                    if score1 > score2:
+                                        if score1 > score3:
+                                            if score1 > score4:
+                                                final_score = score1
+                                    elif score2 > score3:
+                                        if score2 > score4:
+                                            final_score = score2
+                                    elif score3 > score4:
+                                        final_score = score3
+                                    else:
+                                        final_score = score4
+                                    content.writerow([name, score1, score2, score3, score4, final_score])
+                    else:
+                        raise EXCEPTION
+                    
+                # will reset the code to how it originally was if the values were correctly sent to the csv file, it 
+                # will also send a confirmation message that the score has been added to the file
+                self.reset()
+                self.label_wrong.config(fg='green', text='Score has been added to the file')
+            
+            # should only ever be raised if the user inputs an invalid value for any of the attempt scores
+            except:
+                self.label_wrong.config(fg='red', text='Scores must be entered and be between 0-100')
