@@ -1,0 +1,14 @@
+from gradesGUI import *
+
+def main():
+    ''' Sets up the window for the grades program '''
+    
+    window = Tk()
+    window.title('Grade Checker')
+    window.geometry('250x300')
+    window.resizable(False, False)
+    GUI(window)
+    window.mainloop()
+
+if __name__ == '__main__':
+    main()
